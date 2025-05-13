@@ -47,7 +47,7 @@ const HomePage: React.FC = () => {
         debouncedFetchData();
         const saved = localStorage.getItem(FAVORITES_KEY);
         if (saved) setFavorites(JSON.parse(saved));
-    }, [formData.searchTerm, formData.fromDate, formData.toDate, sortBy]);
+    }, [debouncedFetchData, formData.searchTerm, formData.fromDate, formData.toDate, sortBy]);
 
     const toggleFavorite = (article: NewsArticle) => {
         let updated;
