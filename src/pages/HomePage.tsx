@@ -26,23 +26,6 @@ const HomePage: React.FC = () => {
     const { t } = useTranslation();
     const hasNextPage = currentPage * itemsPerPage < articles.length;
 
-    // const debouncedFetchData = debounce(async () => {
-    //     const formatDateTime = (dateStr: string, isStart = true): string | undefined => {
-    //         if (!dateStr) return undefined;
-    //         const time = isStart ? 'T00:00:00Z' : 'T23:59:59Z';
-    //         return `${dateStr}${time}`;
-    //     };
-
-    //     const data = await fetchEverything({
-    //         q: formData.searchTerm || 'news',
-    //         from: formatDateTime(formData.fromDate, true),
-    //         to: formatDateTime(formData.toDate, false),
-    //         sortBy,
-    //     });
-
-    //     setArticles(data);
-    // }, 1000);
-
     const debouncedFetchData = useMemo(() =>
         debounce(async (searchParams) => {
             try {
@@ -71,15 +54,6 @@ const HomePage: React.FC = () => {
         setCurrentPage(1);
         debouncedFetchData(searchParams);
     }, [debouncedFetchData, searchParams]);
-
-    // const handleSearch = useCallback(() => {
-    //     debouncedFetchData({
-    //         q: formData.searchTerm || 'news',
-    //         from: formatDateTime(formData.fromDate, true),
-    //         to: formatDateTime(formData.toDate, false),
-    //         sortBy,
-    //     });
-    // }, [debouncedFetchData, formData.searchTerm, formData.fromDate, formData.toDate, sortBy]);
 
     useEffect(() => {
         handleSearch();
@@ -152,8 +126,6 @@ const HomePage: React.FC = () => {
                 </div>
                 <button
                     onClick={handleSearch}
-                    // onClick={debouncedFetchData}
-                    // onClick={() => setFormData((prev) => ({ ...prev, searchTerm: prev.searchTerm }))}
                     className="bg-slate-600 hover:bg-slate-700 text-white px-4 rounded-lg flex items-center justify-center gap-2 shadow-md"
                 >
                     <IconAdjustmentsHorizontal size={20} /> {t('filter')}

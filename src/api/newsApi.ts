@@ -1,7 +1,6 @@
 import axios from 'axios';
 
-const API_KEY = '4cf1454dc4744e7aa83e4ebc37dd997e';
-const BASE_URL = 'https://newsapi.org/v2/everything';
+const BASE_URL = 'https://news-proxy-server-px57.onrender.com/api/news';
 
 export const fetchEverything = async ({
     q = 'news',
@@ -15,8 +14,6 @@ export const fetchEverything = async ({
             from,
             to,
             sortBy,
-            language: 'en',
-            apiKey: API_KEY,
         },
     });
 
