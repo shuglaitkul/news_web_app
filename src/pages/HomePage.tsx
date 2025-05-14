@@ -1,6 +1,6 @@
 import { IconAdjustmentsHorizontal } from '@tabler/icons-react';
 import { debounce } from 'lodash';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FiArrowLeft, FiArrowRight, FiSearch } from 'react-icons/fi';
 import { MdSort } from 'react-icons/md';
@@ -24,7 +24,7 @@ const HomePage: React.FC = () => {
     const itemsPerPage = 9;
     const navigate = useNavigate();
     const { t } = useTranslation();
-
+    const hasNextPage = currentPage * itemsPerPage < articles.length;
 
     // const debouncedFetchData = debounce(async () => {
     //     const formatDateTime = (dateStr: string, isStart = true): string | undefined => {
@@ -43,7 +43,7 @@ const HomePage: React.FC = () => {
     //     setArticles(data);
     // }, 1000);
 
-    const debouncedFetchData = useCallback(
+    const debouncedFetchData = useMemo(() =>
         debounce(async (searchParams) => {
             try {
                 const data = await fetchEverything(searchParams);
@@ -51,24 +51,35 @@ const HomePage: React.FC = () => {
             } catch (error) {
                 console.error('Error fetching data:', error);
             }
-        }, 1000),
-        []
-    );
+        }, 1000)
+        , []);
+
+    const formatDateTime = (dateStr: string, isStart = true): string | undefined => {
+        if (!dateStr) return undefined;
+        const time = isStart ? 'T00:00:00Z' : 'T23:59:59Z';
+        return `${dateStr}${time}`;
+    };
+
+    const searchParams = useMemo(() => ({
+        q: formData.searchTerm || 'news',
+        from: formatDateTime(formData.fromDate, true),
+        to: formatDateTime(formData.toDate, false),
+        sortBy,
+    }), [formData, sortBy]);
 
     const handleSearch = useCallback(() => {
-        const formatDateTime = (dateStr: string, isStart = true): string | undefined => {
-            if (!dateStr) return undefined;
-            const time = isStart ? 'T00:00:00Z' : 'T23:59:59Z';
-            return `${dateStr}${time}`;
-        };
+        setCurrentPage(1);
+        debouncedFetchData(searchParams);
+    }, [debouncedFetchData, searchParams]);
 
-        debouncedFetchData({
-            q: formData.searchTerm || 'news',
-            from: formatDateTime(formData.fromDate, true),
-            to: formatDateTime(formData.toDate, false),
-            sortBy,
-        });
-    }, [debouncedFetchData, formData.searchTerm, formData.fromDate, formData.toDate, sortBy]);
+    // const handleSearch = useCallback(() => {
+    //     debouncedFetchData({
+    //         q: formData.searchTerm || 'news',
+    //         from: formatDateTime(formData.fromDate, true),
+    //         to: formatDateTime(formData.toDate, false),
+    //         sortBy,
+    //     });
+    // }, [debouncedFetchData, formData.searchTerm, formData.fromDate, formData.toDate, sortBy]);
 
     useEffect(() => {
         handleSearch();
@@ -177,7 +188,8 @@ const HomePage: React.FC = () => {
                 </button>
                 <button
                     onClick={() => setCurrentPage(p => p + 1)}
-                    disabled={currentPage * itemsPerPage >= articles.length}
+                    disabled={!hasNextPage}
+                    // disabled={currentPage * itemsPerPage >= articles.length}
                     className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-600 hover:bg-slate-700 text-white disabled:opacity-50"
                 >
                     {t('next')} <FiArrowRight />
