@@ -7,7 +7,7 @@ import NewsDetailPage from './pages/NewsDetailPage';
 
 function App() {
   return (
-    <Router basename="/news_web_app">
+    <Router basename="/">
       <Navbar />
       <Routes>
         <Route path="/" element={<HomePage />} />

@@ -55,13 +55,7 @@ const HomePage: React.FC = () => {
         []
     );
 
-    useEffect(() => {
-        handleSearch();
-        const saved = localStorage.getItem(FAVORITES_KEY);
-        if (saved) setFavorites(JSON.parse(saved));
-    }, []);
-
-    const handleSearch = () => {
+    const handleSearch = useCallback(() => {
         const formatDateTime = (dateStr: string, isStart = true): string | undefined => {
             if (!dateStr) return undefined;
             const time = isStart ? 'T00:00:00Z' : 'T23:59:59Z';
@@ -74,13 +68,13 @@ const HomePage: React.FC = () => {
             to: formatDateTime(formData.toDate, false),
             sortBy,
         });
-    };
+    }, [debouncedFetchData, formData.searchTerm, formData.fromDate, formData.toDate, sortBy]);
 
-    // useEffect(() => {
-    //     debouncedFetchData();
-    //     const saved = localStorage.getItem(FAVORITES_KEY);
-    //     if (saved) setFavorites(JSON.parse(saved));
-    // }, [debouncedFetchData, formData.searchTerm, formData.fromDate, formData.toDate, sortBy]);
+    useEffect(() => {
+        handleSearch();
+        const saved = localStorage.getItem(FAVORITES_KEY);
+        if (saved) setFavorites(JSON.parse(saved));
+    }, [handleSearch]);
 
     const toggleFavorite = (article: NewsArticle) => {
         let updated;
