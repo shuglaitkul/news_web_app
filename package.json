@@ -2,7 +2,7 @@
   "name": "news_web_app",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://shuglaitkul.github.io/news_web_app",
+  "homepage": ".",
   "dependencies": {
     "@eslint/eslintrc": "^3.3.1",
     "@tabler/icons-react": "^3.31.0",

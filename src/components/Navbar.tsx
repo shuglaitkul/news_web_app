@@ -1,8 +1,8 @@
 import { IconHeart, IconHome } from '@tabler/icons-react';
-import { Newspaper } from 'lucide-react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
+import logo from '../assets/logo.png';
 
 const Navbar: React.FC = () => {
     const location = useLocation();
@@ -21,7 +21,8 @@ const Navbar: React.FC = () => {
     return (
         <nav className="bg-white shadow-md py-4 px-6 flex justify-between items-center sticky top-0 z-50">
             <Link to="/" className="flex items-center space-x-2 text-xl font-bold text-slate-600">
-                <Newspaper className="w-6 h-6" />
+                {/* <Newspaper className="w-6 h-6" /> */}
+                <img src={logo} alt="" width={30} />
                 <span>NewsApp</span>
             </Link>
 

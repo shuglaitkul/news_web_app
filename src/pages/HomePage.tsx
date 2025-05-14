@@ -1,6 +1,6 @@
 import { IconAdjustmentsHorizontal } from '@tabler/icons-react';
 import { debounce } from 'lodash';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FiArrowLeft, FiArrowRight, FiSearch } from 'react-icons/fi';
 import { MdSort } from 'react-icons/md';
@@ -26,28 +26,61 @@ const HomePage: React.FC = () => {
     const { t } = useTranslation();
 
 
-    const debouncedFetchData = debounce(async () => {
+    // const debouncedFetchData = debounce(async () => {
+    //     const formatDateTime = (dateStr: string, isStart = true): string | undefined => {
+    //         if (!dateStr) return undefined;
+    //         const time = isStart ? 'T00:00:00Z' : 'T23:59:59Z';
+    //         return `${dateStr}${time}`;
+    //     };
+
+    //     const data = await fetchEverything({
+    //         q: formData.searchTerm || 'news',
+    //         from: formatDateTime(formData.fromDate, true),
+    //         to: formatDateTime(formData.toDate, false),
+    //         sortBy,
+    //     });
+
+    //     setArticles(data);
+    // }, 1000);
+
+    const debouncedFetchData = useCallback(
+        debounce(async (searchParams) => {
+            try {
+                const data = await fetchEverything(searchParams);
+                setArticles(data);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }, 1000),
+        []
+    );
+
+    useEffect(() => {
+        handleSearch();
+        const saved = localStorage.getItem(FAVORITES_KEY);
+        if (saved) setFavorites(JSON.parse(saved));
+    }, []);
+
+    const handleSearch = () => {
         const formatDateTime = (dateStr: string, isStart = true): string | undefined => {
             if (!dateStr) return undefined;
             const time = isStart ? 'T00:00:00Z' : 'T23:59:59Z';
             return `${dateStr}${time}`;
         };
 
-        const data = await fetchEverything({
+        debouncedFetchData({
             q: formData.searchTerm || 'news',
             from: formatDateTime(formData.fromDate, true),
             to: formatDateTime(formData.toDate, false),
             sortBy,
         });
+    };
 
-        setArticles(data);
-    }, 1000);
-
-    useEffect(() => {
-        debouncedFetchData();
-        const saved = localStorage.getItem(FAVORITES_KEY);
-        if (saved) setFavorites(JSON.parse(saved));
-    }, [debouncedFetchData, formData.searchTerm, formData.fromDate, formData.toDate, sortBy]);
+    // useEffect(() => {
+    //     debouncedFetchData();
+    //     const saved = localStorage.getItem(FAVORITES_KEY);
+    //     if (saved) setFavorites(JSON.parse(saved));
+    // }, [debouncedFetchData, formData.searchTerm, formData.fromDate, formData.toDate, sortBy]);
 
     const toggleFavorite = (article: NewsArticle) => {
         let updated;
@@ -61,11 +94,7 @@ const HomePage: React.FC = () => {
         localStorage.setItem(FAVORITES_KEY, JSON.stringify(updated));
     };
 
-    const filteredArticles = articles.filter(article =>
-        article.title.toLowerCase().includes(formData.searchTerm.toLowerCase())
-    );
-
-    const paginatedNews = filteredArticles.slice(
+    const paginatedNews = articles.slice(
         (currentPage - 1) * itemsPerPage,
         currentPage * itemsPerPage
     );
@@ -117,7 +146,8 @@ const HomePage: React.FC = () => {
                     />
                 </div>
                 <button
-                    onClick={debouncedFetchData}
+                    onClick={handleSearch}
+                    // onClick={debouncedFetchData}
                     // onClick={() => setFormData((prev) => ({ ...prev, searchTerm: prev.searchTerm }))}
                     className="bg-slate-600 hover:bg-slate-700 text-white px-4 rounded-lg flex items-center justify-center gap-2 shadow-md"
                 >
@@ -153,7 +183,7 @@ const HomePage: React.FC = () => {
                 </button>
                 <button
                     onClick={() => setCurrentPage(p => p + 1)}
-                    disabled={currentPage * itemsPerPage >= filteredArticles.length}
+                    disabled={currentPage * itemsPerPage >= articles.length}
                     className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-600 hover:bg-slate-700 text-white disabled:opacity-50"
                 >
                     {t('next')} <FiArrowRight />
